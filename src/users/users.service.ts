@@ -16,19 +16,42 @@ export class UsersService {
     const password = await bcrypt.hash(createUserDto.password, salt);
 
     return this.prisma.user.create({
-      data: { username: createUserDto.username, password, color: createUserDto.color },
+      data: {
+        username: createUserDto.username,
+        password,
+        color: createUserDto.color,
+      },
     });
   }
 
   async findByUsername(username: string): Promise<User> {
     const user = await this.prisma.user.findUnique({ where: { username } });
     if (!user) {
-      throw new NotFoundException(`Utilisateur avec le nom ${username} non trouvé`);
+      throw new NotFoundException(`User not found`);
     }
     return user;
   }
 
-  async updateColor(id: number, color: string) {
-    return this.prisma.user.update({ where: { id }, data: { color } });
+  async findById(id: number): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+
+    return user;
+  }
+
+  async updateColor(id: number, color: string): Promise<Omit<User, 'password'>> {
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: { color },
+    });
+
+    const { password, ...userWithoutPassword } = updatedUser;
+
+    return userWithoutPassword;
   }
 }
