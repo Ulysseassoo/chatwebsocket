@@ -9,8 +9,9 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  username String  @unique
-  password String
-  color    String  @default("#000000")
+  id           Int     @id @default(autoincrement())
+  username     String  @unique
+  password     String
+  color        String  @default("#000000")
+  profilePhoto String?
 }
