@@ -4,8 +4,8 @@ import Providers from "./providers";
 
 
 export const metadata: Metadata = {
-  title: "Chat App",
-  description: "Chat App",
+  title: "Neon Chat App",
+  description: "Neon Chat App",
 };
 
 export default function RootLayout({
