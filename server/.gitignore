@@ -4,6 +4,7 @@
 /build
 /generated
 .wakatime-project
+/uploads
 
 # Logs
 logs
