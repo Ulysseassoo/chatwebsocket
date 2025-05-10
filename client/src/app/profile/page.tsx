@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useUserStore } from "@/store/useUserStore"
+import { handleApiAuthError } from "@/utils/handleApiAuthError"
 
 const availableColors = [
 	{ name: "Bleu Néon", value: "#1EAEDB" },
@@ -88,6 +89,7 @@ const Profile = () => {
 				},
 				body: formData
 			})
+			if (handleApiAuthError(response)) return
 
 			if (!response.ok) throw new Error("Upload failed")
 
@@ -127,6 +129,7 @@ const Profile = () => {
 				},
 				body: JSON.stringify({ color: selectedColor })
 			})
+			if (handleApiAuthError(response)) return
 
 			if (!response.ok) throw new Error("Update failed")
 
@@ -166,6 +169,7 @@ const Profile = () => {
 					newPassword: data.newPassword
 				})
 			})
+			if (handleApiAuthError(response)) return
 
 			if (!response.ok) throw new Error("Password update failed")
 

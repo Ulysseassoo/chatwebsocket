@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
 import { Message, ChatState } from '@/types/chat';
+import { getSocket } from '@/lib/socket';
 
 export const useChat = () => {
   const [state, setState] = useState<ChatState>({
@@ -9,7 +9,7 @@ export const useChat = () => {
     error: null,
   });
 
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<ReturnType<typeof getSocket> | null>(null);
   const initializedRef = useRef(false);
   const messageIdsRef = useRef<Set<number>>(new Set());
 
@@ -18,22 +18,8 @@ export const useChat = () => {
       return;
     }
     initializedRef.current = true;
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setState(prev => ({ ...prev, error: 'Not authenticated' }));
-      return;
-    }
 
-    if (socketRef.current?.connected) {
-      return;
-    }
-
-    socketRef.current = io('http://localhost:4000', {
-      auth: {
-        token,
-      },
-    });
+    socketRef.current = getSocket();
 
     socketRef.current.on('connect', () => {
       setState(prev => ({ ...prev, connected: true, error: null }));

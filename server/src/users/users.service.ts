@@ -3,10 +3,11 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from 'generated/prisma';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
   async create(createUserDto: {
     username: string;
@@ -89,5 +90,15 @@ export class UsersService {
 
     const { password, ...userWithoutPassword } = updatedUser;
     return userWithoutPassword;
+  }
+
+  async findByIdFromToken(token: string): Promise<User | null> {
+    try {
+      const payload = await this.jwtService.verifyAsync(token);
+      if (!payload?.sub) return null;
+      return this.findById(payload.sub);
+    } catch {
+      return null;
+    }
   }
 }

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ChatRoom from '@/components/chat/ChatRoom';
+import { ChatProvider } from "@/hooks/ChatContext";
 
 export default function ChatPage() {
 	const router = useRouter();
@@ -14,5 +15,9 @@ export default function ChatPage() {
 		}
 	}, [router]);
 
-	return <ChatRoom />;
+	return (
+		<ChatProvider>
+			<ChatRoom />
+		</ChatProvider>
+	)
 }

@@ -27,7 +27,6 @@ import { AppController } from './app.controller';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    ChatGateway,
   ],
   exports: [PrismaService],
 })

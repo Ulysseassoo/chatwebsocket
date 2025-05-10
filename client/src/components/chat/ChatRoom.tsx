@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { useChat } from "@/hooks/useChat"
+import { useChatContext } from "@/hooks/ChatContext"
 import { Message } from "@/types/chat"
 import { useUserStore } from "@/store/useUserStore"
 import { useToast } from "@/hooks/use-toast"
@@ -11,7 +11,7 @@ import Link from "next/link"
 import Image from "next/image"
 
 export default function ChatRoom() {
-	const { messages, connected, error, sendMessage } = useChat()
+	const { messages, connected, error, sendMessage } = useChatContext()
 	const [newMessage, setNewMessage] = useState("")
 	const messagesEndRef = useRef<HTMLDivElement>(null)
 	const user = useUserStore((state) => state.user)
@@ -59,13 +59,11 @@ export default function ChatRoom() {
 
 	if (!user) {
 		return (
-			<div className="flex items-center justify-center h-screen">
-				<div className="text-gray-500">Loading...</div>
+			<div className="flex items-center justify-center h-screen  bg-dark ">
+				<div className="text-white">Loading...</div>
 			</div>
 		)
 	}
-
-  console.log(messages)
 
 	return (
 		<div className="flex h-screen bg-dark overflow-hidden">
@@ -90,61 +88,67 @@ export default function ChatRoom() {
 
 				<div className="flex-1 overflow-y-auto p-4 space-y-4">
 					<div className="flex flex-col">
-						{messages.map((message: Message, index: number) => (
-							<div
-								key={message.id}
-								className={`animate-fade-in ${message.senderId === user.id ? "flex justify-end" : "flex justify-start"}`}
-								style={{ animationDelay: `${index * 0.1}s` }}>
-								{message.senderId !== user.id && (
-									<div className="flex items-start space-x-2 mr-2">
-										{message.sender.profilePhoto !== null ? (
-											<Image
-												src={`http://localhost:4000${message.sender.profilePhoto}`}
-												alt={message.sender.username}
-												className="h-8 w-8 rounded-full object-cover"
-												width={32}
-												height={32}
-											/>
-										) : (
-											<div className="h-8 w-8 rounded-full bg-neon-blue flex items-center justify-center text-white font-semibold">
-												{message.sender.username.charAt(0).toUpperCase()}
-											</div>
-										)}
-									</div>
-								)}
-								<div className={`message-bubble ${message.senderId === user.id ? "message-bubble-outgoing" : "message-bubble-incoming"}`}>
-									{message.senderId !== user.id && (
-										<p className="text-xs mb-1 font-semibold" style={{ color: "#ffffff" }}>
-											{message.sender.username}
-										</p>
-									)}
-									<p style={{ color: message.sender.color }}>{message.content}</p>
-									<p className="text-xs text-white/50 text-right mt-1">
-										{new Date(message.createdAt).toLocaleTimeString([], {
-											hour: "2-digit",
-											minute: "2-digit"
-										})}
-									</p>
+						{messages.map((message: Message, index: number) =>
+							message.type === "system" ? (
+								<div key={message.id} className="text-gray-400 italic text-sm py-1 text-center">
+									{message.content}
 								</div>
-								{message.senderId === user.id && (
-									<div className="flex items-start space-x-2 ml-2">
-                    {message.sender.profilePhoto !== null ? (
-                      <Image
-                        src={`http://localhost:4000${message.sender.profilePhoto}`}
-                        alt={message.sender.username}
-                        className="h-8 w-8 rounded-full object-cover"
-                        width={32}
-                        height={32}
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-neon-blue flex items-center justify-center text-white font-semibold">
-                        {user.username.charAt(0).toUpperCase()}
-											</div>
+							) : (
+								<div
+									key={message.id}
+									className={`animate-fade-in ${message.senderId === user.id ? "flex justify-end" : "flex justify-start"}`}
+									style={{ animationDelay: `${index * 0.1}s` }}>
+									{message.senderId !== user.id && (
+										<div className="flex items-start space-x-2 mr-2">
+											{message.sender.profilePhoto !== null ? (
+												<Image
+													src={`http://localhost:4000${message.sender.profilePhoto}`}
+													alt={message.sender.username}
+													className="h-8 w-8 rounded-full object-cover"
+													width={32}
+													height={32}
+												/>
+											) : (
+												<div className="h-8 w-8 rounded-full bg-neon-blue flex items-center justify-center text-white font-semibold">
+													{message.sender.username.charAt(0).toUpperCase()}
+												</div>
+											)}
+										</div>
+									)}
+									<div className={`message-bubble ${message.senderId === user.id ? "message-bubble-outgoing" : "message-bubble-incoming"}`}>
+										{message.senderId !== user.id && (
+											<p className="text-xs mb-1 font-semibold" style={{ color: "#ffffff" }}>
+												{message.sender.username}
+											</p>
 										)}
+										<p style={{ color: message.sender.color }}>{message.content}</p>
+										<p className="text-xs text-white/50 text-right mt-1">
+											{new Date(message.createdAt).toLocaleTimeString([], {
+												hour: "2-digit",
+												minute: "2-digit"
+											})}
+										</p>
 									</div>
-								)}
-							</div>
-						))}
+									{message.senderId === user.id && (
+										<div className="flex items-start space-x-2 ml-2">
+											{message.sender.profilePhoto !== null ? (
+												<Image
+													src={`http://localhost:4000${message.sender.profilePhoto}`}
+													alt={message.sender.username}
+													className="h-8 w-8 rounded-full object-cover"
+													width={32}
+													height={32}
+												/>
+											) : (
+												<div className="h-8 w-8 rounded-full bg-neon-blue flex items-center justify-center text-white font-semibold">
+													{user.username.charAt(0).toUpperCase()}
+												</div>
+											)}
+										</div>
+									)}
+								</div>
+							)
+						)}
 						<div ref={messagesEndRef} />
 					</div>
 				</div>

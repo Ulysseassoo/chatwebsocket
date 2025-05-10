@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { handleApiAuthError } from '@/utils/handleApiAuthError';
 
 interface User {
   id: number;
@@ -29,9 +30,11 @@ export const useUserStore = create<UserState>((set) => ({
           Authorization: `Bearer ${token}`,
         },
       });
+      if (handleApiAuthError(response)) return;
 
       if (!response.ok) {
-        throw new Error('Failed to fetch user');
+        set({ user: null });
+        return;
       }
 
       const user = await response.json();
