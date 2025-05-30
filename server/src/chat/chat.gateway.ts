@@ -6,8 +6,12 @@ import { WsJwtAuthGuard } from "src/auth/ws-jwt-auth.guard";
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true,
+    allowedHeaders: ["authorization", "content-type"],
   },
+  transports: ['websocket', 'polling'],
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -19,7 +23,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @UseGuards(WsJwtAuthGuard)
   @SubscribeMessage('message')
   async handleMessage(client: Socket, payload: { content: string }): Promise<void> {
-    
     const user = await this.usersService.findById(client.data.userId);
     
     const message = {
@@ -36,17 +39,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       createdAt: new Date().toISOString(),
     };
 
-    this.logger.debug(`Broadcasting message: ${JSON.stringify(message)}`);
     this.server.emit('message', message);
   }
 
   async handleConnection(client: Socket) {
     try {
       const token = client.handshake.auth?.token || client.handshake.headers?.authorization?.split(' ')[1];
-      if (!token) return;
+      
+      if (!token) {
+        return;
+      }
+      
       const user = await this.usersService.findByIdFromToken(token);
-      if (!user) return;
+      if (!user) {
+        return;
+      }
+      
       client.data.userId = user.id;
+      
       this.server.emit('message', {
         id: Date.now(),
         content: `${user.username} vient de rejoindre le chat`,
@@ -61,9 +71,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(client: Socket) {
     try {
-      if (!client.data.userId) return;
+      if (!client.data.userId) {
+        return;
+      }
       const user = await this.usersService.findById(client.data.userId);
-      if (!user) return;
+      if (!user) {
+        return;
+      }
       this.server.emit('message', {
         id: Date.now(),
         content: `${user.username} vient de quitter le chat`,

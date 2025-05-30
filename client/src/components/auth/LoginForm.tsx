@@ -83,10 +83,10 @@ export default function LoginForm() {
 						<div className="relative">
 							<Input
 								{...register("username", {
-									required: "Username is required",
+									required: "Nom d'utilisateur requis",
 									minLength: {
 										value: 5,
-										message: "Username must be at least 5 characters"
+										message: "Nom d'utilisateur doit contenir au moins 5 caractères"
 									}
 								})}
 								type="text"
@@ -107,10 +107,10 @@ export default function LoginForm() {
 						<div className="relative">
 							<Input
 								{...register("password", {
-									required: "Password is required",
+									required: "Mot de passe est requis",
 									minLength: {
 										value: 6,
-										message: "Password must be at least 6 characters"
+										message: "Mot de passe doit contenir au moins 6 caractères"
 									}
 								})}
 								type="password"

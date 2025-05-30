@@ -14,10 +14,18 @@ export const useChat = () => {
   const messageIdsRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
-    if (initializedRef.current) {
-      return;
+    setState((prev) => ({
+      ...prev,
+        connected: false,
+        error: null,
+    }));
+    messageIdsRef.current.clear();
+    initializedRef.current = false;
+
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
     }
-    initializedRef.current = true;
 
     socketRef.current = getSocket();
 

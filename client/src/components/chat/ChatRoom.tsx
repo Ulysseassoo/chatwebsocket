@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { User, LogOut, Send } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { Socket } from "socket.io-client"
 
 export default function ChatRoom() {
 	const { messages, connected, error, sendMessage } = useChatContext()
@@ -16,6 +17,7 @@ export default function ChatRoom() {
 	const messagesEndRef = useRef<HTMLDivElement>(null)
 	const user = useUserStore((state) => state.user)
 	const { toast } = useToast()
+	const socketRef = useRef<Socket | null>(null)
 
 	useEffect(() => {
 		useUserStore.getState().fetchUser()
@@ -41,7 +43,10 @@ export default function ChatRoom() {
 	)
 
 	const handleLogout = () => {
-		localStorage.removeItem("user")
+		if (socketRef.current) {
+			socketRef.current.disconnect()
+		}
+		localStorage.removeItem("token")
 		toast({
 			title: "Déconnexion réussie",
 			variant: "default"
